@@ -5,6 +5,9 @@ import userEvent from '@testing-library/user-event';
 
 import Display from './../Display';
 
+import fetchShow from '../../api/fetchShow';
+jest.mock('../../api/fetchShow');
+
 const exampleShowData = {
   name: 'Example',
   summary: 'Really great summary',
@@ -19,8 +22,21 @@ test('renders without errors with no props', () => {
   render(<Display />);
 });
 
-test('renders Show component when the button is clicked ', () => {});
+test('renders Show component when the button is clicked ', async () => {
+  fetchShow.mockResolvedValueOnce(exampleShowData);
+  render(<Display />);
+  const button = screen.getByRole('button');
+  userEvent.click(button);
+  const showTestID = await screen.findByTestId(/show-container/);
+  expect(showTestID).toBeInTheDocument();
+});
 
-test('renders show season options matching your data when the button is clicked', () => {
-  const { rerender } = render(<Display />);
+test('renders show season options matching your data when the button is clicked', async () => {
+  fetchShow.mockResolvedValueOnce(exampleShowData);
+  render(<Display />);
+  const button = screen.getByRole('button');
+  userEvent.click(button);
+  const seasons = await screen.findAllByTestId(/season-option/);
+  expect(seasons).toHaveLength(3);
+  expect(fetchShow).toBeCalled();
 });
